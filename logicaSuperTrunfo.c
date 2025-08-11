@@ -1,108 +1,136 @@
-// super_trunfo.c
-// Versao "iniciante": direto, sem frescura, mas faz o que o PDF pede.
-
+// super_trunfo_mestre.c
 #include <stdio.h>
 
 int main() {
-    // CARTA 1
-    char estado1;
-    char codigo1[5];   // ex: A01
-    char cidade1[60];  // com espacos
-    unsigned long int pop1; // pedido: unsigned long int
-    float area1, pib1;
-    int pontos1;
+    // Mesmos campos do Tema 2
+    char estado1 = 'A', codigo1[4] = "A01", cidade1[30] = "Cidade Alpha";
+    unsigned long populacao1 = 1200000;
+    float area1 = 800.0f, pib1 = 50.0f; // bilhoes
+    int pontos1 = 12;
 
-    // derivados
-    float dens1, pibcap1, invdens1, super1;
+    char estado2 = 'B', codigo2[4] = "B02", cidade2[30] = "Cidade Beta";
+    unsigned long populacao2 = 900000;
+    float area2 = 600.0f, pib2 = 40.0f; // bilhoes
+    int pontos2 = 10;
 
-    // CARTA 2
-    char estado2;
-    char codigo2[5];
-    char cidade2[60];
-    unsigned long int pop2;
-    float area2, pib2;
-    int pontos2;
+    // Derivados
+    float densidade1 = (area1 > 0) ? ((float)populacao1 / area1) : 0.0f;
+    float densidade2 = (area2 > 0) ? ((float)populacao2 / area2) : 0.0f;
+    float pibPerCapita1 = (populacao1 > 0) ? (pib1 * 1e9f / (float)populacao1) : 0.0f;
+    float pibPerCapita2 = (populacao2 > 0) ? (pib2 * 1e9f / (float)populacao2) : 0.0f;
 
-    float dens2, pibcap2, invdens2, super2;
+    // Menu 1
+    int a1, a2;
+    printf("Escolha o 1o atributo:\n");
+    printf("1-Populacao  2-Area  3-PIB  4-Pontos  5-Densidade(menor vence)  6-PIB per capita\n");
+    printf("Opcao: ");
+    if (scanf("%d", &a1) != 1 || a1 < 1 || a1 > 6) { printf("Opcao invalida.\n"); return 0; }
 
-    // ---- entrada carta 1
-    printf("== Carta 1 ==\n");
-    printf("Estado (A-H): ");
-    scanf(" %c", &estado1);
+    // Menu 2 (dinamico): não repete o primeiro
+    printf("\nEscolha o 2o atributo (diferente do primeiro):\n");
+    for (int i = 1; i <= 6; i++) {
+        if (i != a1) {
+            switch(i){
+                case 1: printf("1-Populacao  "); break;
+                case 2: printf("2-Area  "); break;
+                case 3: printf("3-PIB  "); break;
+                case 4: printf("4-Pontos  "); break;
+                case 5: printf("5-Densidade  "); break;
+                case 6: printf("6-PIB per capita  "); break;
+            }
+        }
+    }
+    printf("\nOpcao: ");
+    if (scanf("%d", &a2) != 1 || a2 < 1 || a2 > 6 || a2 == a1) { printf("Opcao invalida.\n"); return 0; }
 
-    printf("Codigo (A01..H04): ");
-    scanf(" %4s", codigo1);
+    // Funçãozinha inline (via switch+ternário) para comparar um atributo
+    // Retorna:  1 se Carta1 vence; 2 se Carta2 vence; 0 se empate
+    auto int compara(int tipo) {
+        switch (tipo) {
+            case 1: // População (maior vence)
+                if (populacao1 == populacao2) return 0;
+                return (populacao1 > populacao2) ? 1 : 2;
+            case 2: // Área (maior vence)
+                if (area1 == area2) return 0;
+                return (area1 > area2) ? 1 : 2;
+            case 3: // PIB (maior vence)
+                if (pib1 == pib2) return 0;
+                return (pib1 > pib2) ? 1 : 2;
+            case 4: // Pontos (maior vence)
+                if (pontos1 == pontos2) return 0;
+                return (pontos1 > pontos2) ? 1 : 2;
+            case 5: // Densidade (menor vence)
+                if (densidade1 == densidade2) return 0;
+                return (densidade1 < densidade2) ? 1 : 2;
+            case 6: // PIB per capita (maior vence)
+                if (pibPerCapita1 == pibPerCapita2) return 0;
+                return (pibPerCapita1 > pibPerCapita2) ? 1 : 2;
+        }
+        return 0;
+    }
 
-    printf("Nome da cidade: ");
-    scanf(" %59[^\n]", cidade1);
+    // Mostra os dois atributos e vencedores individuais
+    int r1 = compara(a1);
+    int r2 = compara(a2);
 
-    printf("Populacao: ");
-    scanf("%lu", &pop1);
+    printf("\nComparando %s (%c) x %s (%c)\n", cidade1, estado1, cidade2, estado2);
+    auto void mostraNome(int tipo){
+        switch(tipo){
+            case 1: printf("Populacao"); break;
+            case 2: printf("Area"); break;
+            case 3: printf("PIB"); break;
+            case 4: printf("Pontos Turisticos"); break;
+            case 5: printf("Densidade"); break;
+            case 6: printf("PIB per capita"); break;
+        }
+    }
 
-    printf("Area (km2): ");
-    scanf("%f", &area1);
+    printf("Atributo 1: "); mostraNome(a1); printf(" -> ");
+    if (r1 == 1) printf("Carta 1 venceu\n");
+    else if (r1 == 2) printf("Carta 2 venceu\n");
+    else printf("Empate\n");
 
-    printf("PIB: ");
-    scanf("%f", &pib1);
+    printf("Atributo 2: "); mostraNome(a2); printf(" -> ");
+    if (r2 == 1) printf("Carta 1 venceu\n");
+    else if (r2 == 2) printf("Carta 2 venceu\n");
+    else printf("Empate\n");
 
-    printf("Pontos turisticos: ");
-    scanf("%d", &pontos1);
+    // ===== Soma dos atributos (normalizacao bem simples) =====
+    // Normalizo cada atributo por um fator fixo só para manter as ordens e poder somar.
+    auto float valorNorm(int tipo, int carta) {
+        // pega valor bruto
+        float v = 0.0f;
+        if (tipo == 1) v = (carta==1)? (float)populacao1 : (float)populacao2;            // ~1e6
+        if (tipo == 2) v = (carta==1)? area1 : area2;                                     // ~1e3
+        if (tipo == 3) v = (carta==1)? pib1 : pib2;                                       // ~1e2 (bilhoes)
+        if (tipo == 4) v = (carta==1)? (float)pontos1 : (float)pontos2;                   // dezenas
+        if (tipo == 5) v = (carta==1)? densidade1 : densidade2;                           // ~10^3-10^4
+        if (tipo == 6) v = (carta==1)? pibPerCapita1 : pibPerCapita2;                     // ~10^4-10^5
 
-    // ---- entrada carta 2
-    printf("\n== Carta 2 ==\n");
-    printf("Estado (A-H): ");
-    scanf(" %c", &estado2);
+        // Para Densidade (menor é melhor), inverto de forma simples:
+        if (tipo == 5) v = (v > 0.0f)? (1.0f / v) : 0.0f;
 
-    printf("Codigo (A01..H04): ");
-    scanf(" %4s", codigo2);
+        // divide por um fator para todas ficarem na mesma ordem de grandeza (bem simples)
+        if (tipo == 1) v /= 1000000.0f;
+        if (tipo == 2) v /= 1000.0f;
+        if (tipo == 3) v /= 10.0f;
+        if (tipo == 4) v /= 10.0f;
+        if (tipo == 5) v *= 1000.0f;     // densidade invertida costuma ficar pequena; multiplico um pouco
+        if (tipo == 6) v /= 10000.0f;
 
-    printf("Nome da cidade: ");
-    scanf(" %59[^\n]", cidade2);
+        return v;
+    }
 
-    printf("Populacao: ");
-    scanf("%lu", &pop2);
+    float soma1 = valorNorm(a1, 1) + valorNorm(a2, 1);
+    float soma2 = valorNorm(a1, 2) + valorNorm(a2, 2);
 
-    printf("Area (km2): ");
-    scanf("%f", &area2);
+    printf("\nSoma normalizada dos dois atributos:\n");
+    printf("Carta 1: %.3f\n", soma1);
+    printf("Carta 2: %.3f\n", soma2);
 
-    printf("PIB: ");
-    scanf("%f", &pib2);
-
-    printf("Pontos turisticos: ");
-    scanf("%d", &pontos2);
-
-    // ---- calculos (sem if, como solicitado por voce)
-    dens1 = (float)pop1 / area1;       // hab/km2
-    pibcap1 = pib1 / (float)pop1;      // per capita
-    invdens1 = 1.0f / dens1;           // inverso (menor densidade => maior inverso)
-    super1 = (float)pop1 + area1 + pib1 + (float)pontos1 + pibcap1 + invdens1; // soma heterogenea
-
-    dens2 = (float)pop2 / area2;
-    pibcap2 = pib2 / (float)pop2;
-    invdens2 = 1.0f / dens2;
-    super2 = (float)pop2 + area2 + pib2 + (float)pontos2 + pibcap2 + invdens2;
-
-    // ---- exibicao simples
-    printf("\n--- CARTA 1 ---\n");
-    printf("Estado: %c\nCodigo: %s\nCidade: %s\n", estado1, codigo1, cidade1);
-    printf("Populacao: %lu\nArea: %.2f\nPIB: %.2f\nPontos: %d\n", pop1, area1, pib1, pontos1);
-    printf("Densidade: %.2f\nPIB per capita: %.2f\nSuper Poder: %.2f\n", dens1, pibcap1, super1);
-
-    printf("\n--- CARTA 2 ---\n");
-    printf("Estado: %c\nCodigo: %s\nCidade: %s\n", estado2, codigo2, cidade2);
-    printf("Populacao: %lu\nArea: %.2f\nPIB: %.2f\nPontos: %d\n", pop2, area2, pib2, pontos2);
-    printf("Densidade: %.2f\nPIB per capita: %.2f\nSuper Poder: %.2f\n", dens2, pibcap2, super2);
-
-    // ---- comparacoes (1 = Carta 1 venceu, 0 = Carta 2 venceu)
-    // Regra especial: densidade MENOR vence; demais MAIOR vence.
-    printf("\n=== Comparacao de Cartas ===\n");
-    printf("Populacao: %d\n", (pop1 > pop2));
-    printf("Area: %d\n", (area1 > area2));
-    printf("PIB: %d\n", (pib1 > pib2));
-    printf("Pontos Turisticos: %d\n", (pontos1 > pontos2));
-    printf("Densidade (menor vence): %d\n", (dens1 < dens2));
-    printf("PIB per Capita: %d\n", (pibcap1 > pibcap2));
-    printf("Super Poder: %d\n", (super1 > super2));
+    if (soma1 > soma2) printf("Resultado FINAL: Carta 1 venceu a rodada!\n");
+    else if (soma2 > soma1) printf("Resultado FINAL: Carta 2 venceu a rodada!\n");
+    else printf("Resultado FINAL: Empate!\n");
 
     return 0;
 }
