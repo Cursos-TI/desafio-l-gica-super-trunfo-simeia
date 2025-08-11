@@ -1,135 +1,108 @@
 // super_trunfo.c
-// Super Trunfo - Nivel Mestre (versão "gente de verdade": funciona, mas sem preciosismo exagerado)
+// Versao "iniciante": direto, sem frescura, mas faz o que o PDF pede.
 
 #include <stdio.h>
-#include <string.h>
 
-// não vou criar mil structs e funções, mas um struct ajuda a não virar salada
-typedef struct {
-    char estado;                 // 'A'..'H'
-    char codigo[8];              // A01..H04 (8 é overkill, ok)
-    char cidade[64];             // nome da cidade (com espaços)
-    unsigned long int populacao; // nível mestre pede tipo sem sinal e "longo"
-    double area;                 // km²
-    double pib;                  // tanto faz a unidade, o usuário sabe o que digita
-    int pontos;
+int main() {
+    // CARTA 1
+    char estado1;
+    char codigo1[5];   // ex: A01
+    char cidade1[60];  // com espacos
+    unsigned long int pop1; // pedido: unsigned long int
+    float area1, pib1;
+    int pontos1;
 
     // derivados
-    double densidade;    // pop/area
-    double pib_percap;   // pib/pop
-    double super_poder;  // soma híbrida com casting
-} Carta;
+    float dens1, pibcap1, invdens1, super1;
 
-static void ler_linha(char *buf, size_t n) {
-    if (fgets(buf, (int)n, stdin)) {
-        size_t k = strcspn(buf, "\n");
-        buf[k] = '\0';
-    }
-}
+    // CARTA 2
+    char estado2;
+    char codigo2[5];
+    char cidade2[60];
+    unsigned long int pop2;
+    float area2, pib2;
+    int pontos2;
 
-int main(void) {
-    Carta c1, c2;
+    float dens2, pibcap2, invdens2, super2;
 
-    // ---- Entrada Carta 1
-    printf("=== Carta 1 ===\n");
+    // ---- entrada carta 1
+    printf("== Carta 1 ==\n");
     printf("Estado (A-H): ");
-    scanf(" %c", &c1.estado);
+    scanf(" %c", &estado1);
 
-    printf("Codigo (ex: A01): ");
-    scanf("%7s", c1.codigo);
+    printf("Codigo (A01..H04): ");
+    scanf(" %4s", codigo1);
 
-    // consome \n pendente antes de ler linha com espaços
-    int ch; while ((ch = getchar()) != '\n' && ch != EOF) {}
+    printf("Nome da cidade: ");
+    scanf(" %59[^\n]", cidade1);
 
-    printf("Nome da Cidade: ");
-    ler_linha(c1.cidade, sizeof(c1.cidade));
-
-    printf("Populacao (inteira, >=0): ");
-    scanf("%lu", &c1.populacao);
+    printf("Populacao: ");
+    scanf("%lu", &pop1);
 
     printf("Area (km2): ");
-    scanf("%lf", &c1.area);
+    scanf("%f", &area1);
 
-    printf("PIB (mesma unidade para ambas as cartas): ");
-    scanf("%lf", &c1.pib);
+    printf("PIB: ");
+    scanf("%f", &pib1);
 
-    printf("Pontos turisticos (int): ");
-    scanf("%d", &c1.pontos);
+    printf("Pontos turisticos: ");
+    scanf("%d", &pontos1);
 
-    // ---- Entrada Carta 2
-    printf("\n=== Carta 2 ===\n");
+    // ---- entrada carta 2
+    printf("\n== Carta 2 ==\n");
     printf("Estado (A-H): ");
-    scanf(" %c", &c2.estado);
+    scanf(" %c", &estado2);
 
-    printf("Codigo (ex: B03): ");
-    scanf("%7s", c2.codigo);
+    printf("Codigo (A01..H04): ");
+    scanf(" %4s", codigo2);
 
-    while ((ch = getchar()) != '\n' && ch != EOF) {}
+    printf("Nome da cidade: ");
+    scanf(" %59[^\n]", cidade2);
 
-    printf("Nome da Cidade: ");
-    ler_linha(c2.cidade, sizeof(c2.cidade));
-
-    printf("Populacao (inteira, >=0): ");
-    scanf("%lu", &c2.populacao);
+    printf("Populacao: ");
+    scanf("%lu", &pop2);
 
     printf("Area (km2): ");
-    scanf("%lf", &c2.area);
+    scanf("%f", &area2);
 
-    printf("PIB (mesma unidade para ambas as cartas): ");
-    scanf("%lf", &c2.pib);
+    printf("PIB: ");
+    scanf("%f", &pib2);
 
-    printf("Pontos turisticos (int): ");
-    scanf("%d", &c2.pontos);
+    printf("Pontos turisticos: ");
+    scanf("%d", &pontos2);
 
-    // ---- Derivados (sem if/else; protecao simples com operador ternario)
-    c1.densidade  = (c1.area > 0.0) ? ( (double)c1.populacao / c1.area ) : 0.0;
-    c2.densidade  = (c2.area > 0.0) ? ( (double)c2.populacao / c2.area ) : 0.0;
+    // ---- calculos (sem if, como solicitado por voce)
+    dens1 = (float)pop1 / area1;       // hab/km2
+    pibcap1 = pib1 / (float)pop1;      // per capita
+    invdens1 = 1.0f / dens1;           // inverso (menor densidade => maior inverso)
+    super1 = (float)pop1 + area1 + pib1 + (float)pontos1 + pibcap1 + invdens1; // soma heterogenea
 
-    c1.pib_percap = (c1.populacao > 0UL) ? ( c1.pib / (double)c1.populacao ) : 0.0;
-    c2.pib_percap = (c2.populacao > 0UL) ? ( c2.pib / (double)c2.populacao ) : 0.0;
+    dens2 = (float)pop2 / area2;
+    pibcap2 = pib2 / (float)pop2;
+    invdens2 = 1.0f / dens2;
+    super2 = (float)pop2 + area2 + pib2 + (float)pontos2 + pibcap2 + invdens2;
 
-    // inverso da densidade = 1/densidade = area/populacao (quando pop>0)
-    double inv_dens1 = (c1.populacao > 0UL) ? ( c1.area / (double)c1.populacao ) : 0.0;
-    double inv_dens2 = (c2.populacao > 0UL) ? ( c2.area / (double)c2.populacao ) : 0.0;
-
-    // Super Poder = soma de TUDO que é numerico (atenção aos tipos)
-    // pop (UL) + area (double) + pib (double) + pontos (int) + pib_percap (double) + inv_dens (double)
-    // sim, as unidades ficam misturadas… o enunciado quer assim.
-    c1.super_poder = (double)c1.populacao + c1.area + c1.pib + (double)c1.pontos + c1.pib_percap + inv_dens1;
-    c2.super_poder = (double)c2.populacao + c2.area + c2.pib + (double)c2.pontos + c2.pib_percap + inv_dens2;
-
-    // ---- Exibição “bonitinha o suficiente”
+    // ---- exibicao simples
     printf("\n--- CARTA 1 ---\n");
-    printf("Estado: %c\nCodigo: %s\nCidade: %s\n", c1.estado, c1.codigo, c1.cidade);
-    printf("Populacao: %lu\nArea: %.2f km2\nPIB: %.2f\nPontos: %d\n", c1.populacao, c1.area, c1.pib, c1.pontos);
-    printf("Densidade: %.2f hab/km2\nPIB per capita: %.2f\nSuper Poder: %.2f\n",
-           c1.densidade, c1.pib_percap, c1.super_poder);
+    printf("Estado: %c\nCodigo: %s\nCidade: %s\n", estado1, codigo1, cidade1);
+    printf("Populacao: %lu\nArea: %.2f\nPIB: %.2f\nPontos: %d\n", pop1, area1, pib1, pontos1);
+    printf("Densidade: %.2f\nPIB per capita: %.2f\nSuper Poder: %.2f\n", dens1, pibcap1, super1);
 
     printf("\n--- CARTA 2 ---\n");
-    printf("Estado: %c\nCodigo: %s\nCidade: %s\n", c2.estado, c2.codigo, c2.cidade);
-    printf("Populacao: %lu\nArea: %.2f km2\nPIB: %.2f\nPontos: %d\n", c2.populacao, c2.area, c2.pib, c2.pontos);
-    printf("Densidade: %.2f hab/km2\nPIB per capita: %.2f\nSuper Poder: %.2f\n",
-           c2.densidade, c2.pib_percap, c2.super_poder);
+    printf("Estado: %c\nCodigo: %s\nCidade: %s\n", estado2, codigo2, cidade2);
+    printf("Populacao: %lu\nArea: %.2f\nPIB: %.2f\nPontos: %d\n", pop2, area2, pib2, pontos2);
+    printf("Densidade: %.2f\nPIB per capita: %.2f\nSuper Poder: %.2f\n", dens2, pibcap2, super2);
 
-    // ---- Comparações (sem if). 1 -> Carta 1 venceu ; 0 -> Carta 2 venceu
-    // regra especial: DENSIDADE MENOR vence. Demais: MAIOR vence.
-    int v_pop   = (c1.populacao  > c2.populacao);
-    int v_area  = (c1.area       > c2.area);
-    int v_pib   = (c1.pib        > c2.pib);
-    int v_pts   = (c1.pontos     > c2.pontos);
-    int v_dens  = (c1.densidade  < c2.densidade); // invertido
-    int v_pc    = (c1.pib_percap > c2.pib_percap);
-    int v_power = (c1.super_poder> c2.super_poder);
-
+    // ---- comparacoes (1 = Carta 1 venceu, 0 = Carta 2 venceu)
+    // Regra especial: densidade MENOR vence; demais MAIOR vence.
     printf("\n=== Comparacao de Cartas ===\n");
-    printf("Populacao: Carta 1 venceu (%d)\n", v_pop);
-    printf("Area: Carta 1 venceu (%d)\n", v_area);
-    printf("PIB: Carta 1 venceu (%d)\n", v_pib);
-    printf("Pontos Turisticos: Carta 1 venceu (%d)\n", v_pts);
-    printf("Densidade Populacional: Carta 1 venceu (%d)\n", v_dens);
-    printf("PIB per Capita: Carta 1 venceu (%d)\n", v_pc);
-    printf("Super Poder: Carta 1 venceu (%d)\n", v_power);
+    printf("Populacao: %d\n", (pop1 > pop2));
+    printf("Area: %d\n", (area1 > area2));
+    printf("PIB: %d\n", (pib1 > pib2));
+    printf("Pontos Turisticos: %d\n", (pontos1 > pontos2));
+    printf("Densidade (menor vence): %d\n", (dens1 < dens2));
+    printf("PIB per Capita: %d\n", (pibcap1 > pibcap2));
+    printf("Super Poder: %d\n", (super1 > super2));
 
-    // pronto. sem if/else, usando operadores relacionais e tipos certos.
     return 0;
 }
